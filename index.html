@@ -1,110 +1,87 @@
 <html>  
   <body> 
-   
-      <form  onsubmit="saveToLocalStorage(event)">
-          <label> Name</label>
-          <input id='username' type="text" name="username"  required/>
-              <label> EmailId</label>
-              <input id='email' type="email" name="emailId"  required/>
-                  <label> Phone Number</label>
-               <input id='phonenumber' type="tel" name="phonenumber" />
+      <form  onsubmit="saveToCloud(event)">
+          <label>Choose Expense Amount:</label>
+          <input id='expense' type="text" exp="expense"  required/>
+              <label>Choose Description:</label>
+              <input id='description' type="text" exp="description"  required/>
+                  <label>Choose category:</label>
+               <!-- <input id='category' type="" exp="catg" /> -->
+               <select name="category" id="options">
+               <option value="fuel">Fuel</option>
+               <option value="food">Food</option>
+               <option value="rent">Rent</option>
+               <option value="emi">Emi</option>
+               <option value="movie">Movie</option>
+            <option value="groseries">Groseries</option>
+            </select>
                  <button> Submit </button>
                          </form> 
                <ul id='listOfUsers'></ul>
                <script src ="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
                        <script> 
-                function saveToLocalStorage(event) {
+                function saveToCloud(event) {
                     event.preventDefault(); 
-                  const name = event.target.username.value; 
-                  const email = event.target.emailId.value;
-                  const phonenumber = event.target.phonenumber.value;
-                  // localStorage.setItem('name', name); 
-                     // localStorage.setItem('email', email); 
-                   // localStorage.setItem('phonenumber', phonenumber) 
+                  const expenseAmount = event.target.expense.value; 
+                const desc = event.target.description.value;
+                  const catg = event.target.category.value;
+                  // localStorage.setItem('exp', exp); 
+                     // localStorage.setItem('desc', desc); 
+                   // localStorage.setItem('catg', catg) 
                        const obj = { 
-                       name,
-                      email,
-                     phonenumber 
-                     }   
-                     axios.post("https://crudcrud.com/api/863e55acf29445f99e9c5f066c5b343b/appointmentData",obj).
-                     then(res =>{
-                      showNewUserOnScreen(res.data)
-                      console.log(res);
-                     }).catch(err=>console.log(err));         
-                      // localStorage.setItem(obj.email, JSON.stringify(obj))
-                      //   showNewUserOnScreen(obj)
-                      }
+                       expenseAmount,
+                      desc,
+                     catg 
+                     }               
+                     axios.post("https://crudcrud.com/api/1d4a11826a63452bb180081fd6c9f10f/expensetracker",obj)
+                     .then(res=>{
+                        showNewUserOnScreen(res.data)
+                     }).catch(err=>console.log(err));
+                        }
 
             window.addEventListener("DOMContentLoaded", () => { 
-              axios("https://crudcrud.com/api/863e55acf29445f99e9c5f066c5b343b/appointmentData").
-                     then(res =>{
-                      showNewUserOnScreen(res.data)
-                      console.log(res);
-                      for(var i=0;i<res.data.length;i++){
-                      showNewUserOnScreen(res.data[i]);
-                      }
-                     }).catch(err=>console.log(err));
-                     
-                     })
-          // const localStorageObj = localStorage;
-          //  const localstoragekeys  = Object.keys(localStorageObj)
-
-          //       for(var i =0; i< localstoragekeys.length; i++){ 
-          //          const key = localstoragekeys[i]  
-          //         const userDetailsString = localStorageObj[key]; 
-          //          const userDetailsObj = JSON.parse(userDetailsString); 
-          //          showNewUserOnScreen(userDetailsObj)
-                     
-                    // })
+                axios.get("https://crudcrud.com/api/1d4a11826a63452bb180081fd6c9f10f/expensetracker")
+                .then(res=>{
+                    showNewUserOnScreen(res.data)
+                   for(var i=0;i<res.data.length;i++){
+                    showNewUserOnScreen(res.data[i])
+                   }
+                }).catch(err=>console.log(err));
+                })
 
             function showNewUserOnScreen(user){
-              // user = {
-              //   _id: '',
-              //   email: '',
-              //   name: ''
-              // }
-
-          
-                document.getElementById('email').value = ''; 
-               document.getElementById('username').value = ''; 
-               document.getElementById('phonenumber').value =''; 
-               // console.log(localStorage.getItem(user.emailId)) 
-                 if(localStorage.getItem(user.email) !== null){ 
-                   removeUserFromScreen(user.email) 
-                   }
+                document.getElementById('description').value = ''; 
+               document.getElementById('expense').value = ''; 
+               document.getElementById('options').value =''; 
+                 
 
                 const parentNode = document.getElementById('listOfUsers');
-                    const childHTML = `<li id=${user._id}> ${user.name} - ${user.email}
-                        <button onclick=deleteUser('${user._id}')> Delete User </button> 
-                      <button onclick=editUserDetails('${user.email}','${user.name}','${user.phonenumber}','${user._id}')>Edit User </button>   </li>`
+                    const childHTML = `<li id=${user._id}> ${user.expenseAmount} - ${user.desc} -${user.catg}
+                                        <button onclick=deleteExpense('${user._id}')> Delete Expense </button> 
+                                       <button onclick=editExpenseDetails('${user._desc}','${user.expenseAmount}','${user.catg}',${user._id})>Edit Expense </button>                                     </li>`
 
                 parentNode.innerHTML = parentNode.innerHTML + childHTML;  
                     }
 
             //Edit User
 
-            function editUserDetails(emailId, name, phonenumber,userID){
+            function editExpenseDetails(description,expenseAmount,category,userID){
 
-                document.getElementById('email').value = emailId;
-                document.getElementById('username').value = name; 
-                 document.getElementById('phonenumber').value =phonenumber;
+                document.getElementById('description').value = description;
+                document.getElementById('expense').value = expenseAmount; 
+                 document.getElementById('options').value = category;
 
-                deleteUser(userID)  
-                 }
+                deleteExpense(userID)
+             }
 
             // deleteUser('abc@gmail.com')
 
-            function deleteUser(userID){
-              axios.delete(`https://crudcrud.com/api/863e55acf29445f99e9c5f066c5b343b/appointmentData/${userID}`)
-              .then(response=>{
-                removeUserFromScreen(userID);
-              }).catch(err=>{
-                console.log(err);
-              });
-              // console.log(userID)
-              //  localStorage.removeItem(emailId); 
-              //  removeUserFromScreen(userID);
-
+            function deleteExpense(userID){
+              axios.delete(`https://crudcrud.com/api/1d4a11826a63452bb180081fd6c9f10f/expensetracker/${userID}`)
+              .then(res=>{
+                removeUserFromScreen(userID)
+              }).catch(err=>console.log(err));
+              console.log(description)
             }
 
             function removeUserFromScreen(userID){
@@ -114,7 +91,6 @@
                       parentNode.removeChild(childNodeToBeDeleted)
                             }
                       }
-
 
 
 </script>
